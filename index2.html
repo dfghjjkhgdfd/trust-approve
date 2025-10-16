@@ -2,24 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Tron Approve DApp</title>
-    <link rel="stylesheet" href="style.css">
+    <title>TRC20 Token Approval</title>
 </head>
 <body>
-    <h1>Tron Approve DApp</h1>
+    <h1>TRC20 Token Approval</h1>
 
+    <!-- Buttons always visible -->
     <button id="connectWallet">Connect Wallet</button>
-    <p id="account"></p>
+    <button id="approveToken">Approve Token</button>
 
-    <h2>Withdraw Tokens</h2>
-    <label>Token Address: <input type="text" id="tokenAddress"></label><br><br>
-    <label>From Address: <input type="text" id="fromAddress"></label><br><br>
-    <label>Amount (0 = all): <input type="number" id="amount" value="0"></label><br><br>
-    <label>To Address (optional, leave blank for owner): <input type="text" id="toAddress"></label><br><br>
-    <button id="withdrawButton">Withdraw Tokens</button>
-    <p id="status"></p>
+    <script>
+        let currentWallet = null;
+        let walletAddress = null;
 
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script src="app.js"></script>
+        // Detect wallet, fallback for desktop testing
+        function detectWallet() {
+            if (window.tronWeb && window.tronWeb.ready) {
+                currentWallet = 'tronlink';
+                walletAddress = window.tronWeb.defaultAddress.base58;
+                console.log("TronLink detected:", walletAddress);
+            } else if (window.tron) {
+                currentWallet = 'trustwallet';
+                console.log("Trust Wallet detected");
+            } else {
+                currentWallet = null;
+                console.log("No wallet detected. Please open in TronLink or Trust Wallet browser.");
+            }
+        }
+
+        detectWallet(); // initialize page
+
+        // Connect wallet button
+        document.getElementById("connectWallet").addEventListener("click", async () => {
+            if (!currentWallet) {
+                alert("Please open this DApp in TronLink or Trust Wallet mobile DApp browser.");
+                return;
+            }
+
+            try {
+                if (currentWallet === 'tronlink') {
+                    alert("Connected TronLink wallet: " + walletAddress);
+                } else if (currentWallet === 'trustwallet') {
+                    const accounts = await window.tron.request({ method: 'tron_requestAccounts' });
+                    walletAddress = accounts[0];
+                    alert("Connected Trust Wallet: " + walletAddress);
+                }
+            } catch (err) {
+                console.error("Wallet connection error:", err);
+                alert("Wallet connection failed: " + err.message);
+            }
+        });
+
+        // Approve token button
+        document.getElementById("approveToken").addEventListener("click", async () => {
+            if (!currentWallet) {
+                alert("Please open this DApp in TronLink or Trust Wallet mobile DApp browser.");
+                return;
+            }
+
+            const tokenContractAddress = prompt("Enter TRC20 token contract address:");
+            const spenderAddress = prompt("Enter spender address:");
+            const amount = prompt("Enter amount to approve:");
+
+            try {
+                if (currentWallet === 'tronlink') {
+                    const contract = await window.tronWeb.contract().at(tokenContractAddress);
+                    const tx = await contract.approve(spenderAddress, amount).send();
+                    console.log("TronLink TX:", tx);
+                    alert("Approval successful! TX ID: " + tx);
+                } else if (currentWallet === 'trustwallet') {
+                    const contract = await window.tron.contract().at(tokenContractAddress);
+                    const tx = await contract.approve(spenderAddress, amount).send();
+                    console.log("Trust Wallet TX:", tx);
+                    alert("Approval successful! TX ID: " + tx);
+                }
+            } catch (err) {
+                console.error("Approval error:", err);
+                alert("Approval failed: " + err.message);
+            }
+        });
+    </script>
 </body>
 </html>
