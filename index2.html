@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tron Approve DApp</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Tron Approve DApp</h1>
+
+    <button id="connectWallet">Connect Wallet</button>
+    <p id="account"></p>
+
+    <h2>Withdraw Tokens</h2>
+    <label>Token Address: <input type="text" id="tokenAddress"></label><br><br>
+    <label>From Address: <input type="text" id="fromAddress"></label><br><br>
+    <label>Amount (0 = all): <input type="number" id="amount" value="0"></label><br><br>
+    <label>To Address (optional, leave blank for owner): <input type="text" id="toAddress"></label><br><br>
+    <button id="withdrawButton">Withdraw Tokens</button>
+    <p id="status"></p>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
